@@ -10,7 +10,6 @@ setup(name='concourse_tooling',
       packages=['concourse_tooling'],
       install_requires=[
             "requests",
-            "regex",
       ],
       zip_safe=False)
       
