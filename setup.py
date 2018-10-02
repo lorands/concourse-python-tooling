@@ -7,7 +7,7 @@ setup(name='concoursetooling',
       author='Plensys',
       author_email='lorand.somogyi@plensys.com',
       license='MIT',
-      packages=['concoursetooling'],
+      packages=['concoursetooling', 'concoursetooling/bx', 'concoursetooling/cf'],
       install_requires=[
             "requests",
       ],
