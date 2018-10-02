@@ -1,7 +1,2 @@
-
-subprocess
-string
-re
-xml
-random
-logging
+regex == 2017.12.12
+requests == 2.19.0

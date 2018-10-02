@@ -8,5 +8,9 @@ setup(name='concourse_tooling',
       author_email='lorand.somogyi@plensys.com',
       license='MAT',
       packages=['concourse_tooling'],
+      install_requires=[
+            "requests",
+            "regex",
+      ],
       zip_safe=False)
       
