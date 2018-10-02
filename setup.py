@@ -1,15 +1,14 @@
 from setuptools import setup
 
-setup(name='concourse_tooling',
-      version='0.1',
+setup(name='concoursetooling',
+      version='0.2',
       description='Concourse Python Tooling',
       url='http://plensys.com',
       author='Plensys',
       author_email='lorand.somogyi@plensys.com',
-      license='MAT',
-      packages=['concourse_tooling'],
+      license='MIT',
+      packages=['concoursetooling'],
       install_requires=[
             "requests",
       ],
       zip_safe=False)
-      
