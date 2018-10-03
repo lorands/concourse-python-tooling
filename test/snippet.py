@@ -9,3 +9,5 @@ ss = CloudFoundry.get_all_services()
 # CloudFoundryClient.
 
 print(ss)
+
+CloudFoundry.create_user_provided_service('test-me', {'foo' : 'bar'})
