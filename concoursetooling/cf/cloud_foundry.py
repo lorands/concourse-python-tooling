@@ -135,7 +135,8 @@ class CloudFoundry:
 
     @staticmethod
     def create_user_provided_service(ups_name, config):
-        '''If not exists create a user provided service from config with ups_name
+        '''If not exists create a user provided service from config with ups_name. 
+        If exists it will be updated!
         '''
         services = CloudFoundry.get_all_services()
         cjson = json.dumps(config)
@@ -143,12 +144,16 @@ class CloudFoundry:
             ## update
             xary=["cf", "uups", ups_name,  "-p", cjson]
             CloudFoundry.logger.debug(xary)
-            CloudFoundry.__run(xary)
+            ret=subprocess.run(xary, stdout=subprocess.PIPE, encoding='utf-8')
+            if ret.returncode != 0 :
+                raise Exception("Fail to update CF UPS. Output {}".format(ret.stdout))
         else:
             ## create
             xary=["cf", "cups", ups_name,  "-p", cjson]
             CloudFoundry.logger.debug(xary)
-            CloudFoundry.__run(xary)
+            ret=subprocess.run(xary, stdout=subprocess.PIPE, encoding='utf-8')
+            if ret.returncode != 0 :
+                raise Exception("Fail to create CF UPS. Output {}".format(ret.stdout))
 
     @staticmethod
     def __run(cmd):
