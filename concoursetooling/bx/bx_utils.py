@@ -15,39 +15,22 @@ logger = logging.getLogger(__name__)
 def bx_login(endpoint, user, pwd, account, resource_group = 'Default'):
   '''Blumix login. If resource group is not defined it defaults to 'Default'.
   '''
-  try:
-    subprocess.run(["bx", "config", "--check-version=false"]) ## should go to docker
-
-    # login
-    completed = subprocess.run(["bx login -a {} -u {} -p {} -c {} -g {}".format(
-      endpoint, user, pwd, account, resource_group)
-    ], shell=True)
-    logger.info('bx login returncode: {}'.format(completed.returncode))
-    return completed.returncode
-  except subprocess.CalledProcessError as err:
-    logging.error('ERROR: {}'.format(err))
-    return 1
+  # login
+  completed = __run("bx login -a {} -u {} -p {} -c {} -g {}".format(
+                    endpoint, user, pwd, account, resource_group))
+  return completed.returncode ## we might not need this at all, it will raise an exception if failed
 
 def get_bx_iam_token() :
   '''Get bluemix IAM Token. Cloud only be obtained after call to bx_login().
   '''
   completed = __run('bx iam oauth-tokens')
-  retcode = completed.returncode
-  #print(completed)
-  if retcode == 0 :
-    return completed.stdout.split('\n', 1)[0].split(':')[1].strip()
-  else:
-    raise Exception
+  return completed.stdout.split('\n', 1)[0].split(':')[1].strip()
 
 def get_bx_resource_service_instance(instance_name):
   '''Get bluemix resource service instance details.
   '''
-  #COS_RID=$(bx resource service-instance $COS_NAME | grep '^ID:' | awk '{print $2}')
   shout = __run("bx resource service-instance {}".format(instance_name))
-  if shout.returncode == 0 :
-    return __process_bx_output_to_dict(shout.stdout)
-  else :
-    raise Exception("Process failed.")
+  return __process_bx_output_to_dict(shout.stdout)
 
 
 def bx_create_bucket(desired_name, cos_url, cos_rid, bucket_location):
@@ -132,8 +115,11 @@ def __find_bucket(desired_name, cos_url, cos_rid, iam_token):
   return 0
 
 
-def __run(cmd):
-  return subprocess.run([cmd], shell=True, check=True, stdout=subprocess.PIPE, encoding='utf-8')
+def __run(cmd, check=True):
+  logging.debug("About to call: {}".format(cmd))
+  completed = subprocess.run([cmd], shell=True, check=check, stdout=subprocess.PIPE, encoding='utf-8')
+  logger.debug('Call returned with: {}'.format(completed))
+  return completed
 
 
 def __process_bx_output_to_dict(output):
