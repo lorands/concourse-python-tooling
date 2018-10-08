@@ -38,7 +38,7 @@ class CloudFoundry:
 
     @staticmethod
     def exists(cf_app):
-        app_results = CloudFoundry.__run('cf a | grep "{}"'.format(cf_app)).stodut
+        app_results = CloudFoundry.__run('cf a | grep "{}"'.format(cf_app)).stdout
         return bool(app_results)
 
     @staticmethod
