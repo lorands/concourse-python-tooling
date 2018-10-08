@@ -7,6 +7,7 @@ import subprocess
 import xml.etree.ElementTree as ET
 import random
 import string
+import os
 
 import requests
 
@@ -31,6 +32,43 @@ def get_bx_resource_service_instance(instance_name):
   '''
   shout = __run("bx resource service-instance {}".format(instance_name))
   return __process_bx_output_to_dict(shout.stdout)
+
+def deploy_docker_as_cf_app(name, docker_image, domain, hostname=None, instances="1", disk_limit='2G', mem_limit='1G'):
+  '''Deploy docker to CF as app. 
+  Will do it with no-route!!
+  '''
+  tokenDict = __get_cr_token()
+  token = tokenDict['Token']
+  logger.debug("Token is: {}".format(token))
+
+  my_env = os.environ.copy()
+  my_env["CF_DOCKER_PASSWORD"] = token
+  logger.debug("Prepared env to run is: {}".format(my_env))
+  host = hostname
+  if hostname == None:
+    host = name
+  cmd = "cf push -i {} -m {} -k {} -d {} -n {} {} --docker-image {} --docker-username token".format(instances, mem_limit, disk_limit, domain, host, name, docker_image)
+  __run(cmd, env=my_env)
+  # cmdAry = ["cf", "push", "-i", instances, "-m", mem_limit, "-k", disk_limit, "-d", domain, "-n", host, name, "--docker-image", docker_image, "--docker-username", "token"]  
+  # logging.debug("About to call: {}".format(cmdAry))
+  # completed = subprocess.run(cmdAry, check=True, stdout=subprocess.PIPE, encoding='utf-8', env=my_env)
+  # logger.debug('Call returned with: {}'.format(completed))
+
+
+def __get_cr_token():
+  # bx cr token-add
+  shout = __run("bx cr token-add")
+  ##tokenDict = __process_bx_output_to_dict(shout.stdout)
+  lines = shout.stdout.split('\n')
+  tokenDict = {}
+  for line_no, line in enumerate(lines) :
+    # print("l{} : {}".format(line_no, line))
+    if line_no == 2:
+      # print(re.split(r"\s{2,3}", line))
+      tokenDict['Identifier'] = re.split(r"\s{2,3}", line)[1].strip()
+    if line_no == 3:
+      tokenDict['Token'] = re.split(r"\s+", line)[1].strip()
+  return tokenDict
 
 
 def bx_create_bucket(desired_name, cos_url, cos_rid, bucket_location):
@@ -115,9 +153,9 @@ def __find_bucket(desired_name, cos_url, cos_rid, iam_token):
   return 0
 
 
-def __run(cmd, check=True):
+def __run(cmd, check=True, env=None):
   logging.debug("About to call: {}".format(cmd))
-  completed = subprocess.run([cmd], shell=True, check=check, stdout=subprocess.PIPE, encoding='utf-8')
+  completed = subprocess.run([cmd], shell=True, check=check, stdout=subprocess.PIPE, encoding='utf-8', env=env)
   logger.debug('Call returned with: {}'.format(completed))
   return completed
 

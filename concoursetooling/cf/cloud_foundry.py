@@ -145,6 +145,11 @@ class CloudFoundry:
     def create_user_provided_service(ups_name, config):
         '''If not exists create a user provided service from config with ups_name. 
         If exists it will be updated!
+
+        Parameters
+        ----------
+        ups_name : name of the user provided service
+        config : expecting a dict with key/value pair to be converted to json
         '''
         services = CloudFoundry.get_all_services()
         cjson = json.dumps(config)
