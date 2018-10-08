@@ -10,27 +10,27 @@ class CloudFoundry:
 
     @staticmethod
     def login(cf_api, cf_org, cf_space, cf_user, cf_pwd):
-        subprocess.run(["cf login -a " + cf_api + " -u " + cf_user + " -o " + cf_org + " -s " + cf_space + " -p " + cf_pwd + " --skip-ssl-validation"], shell=True)
+        CloudFoundry.__run("cf login -a " + cf_api + " -u " + cf_user + " -o " + cf_org + " -s " + cf_space + " -p " + cf_pwd + " --skip-ssl-validation")
      
     @staticmethod
     def apps():
-        subprocess.run(["cf apps"], shell=True)   
+        CloudFoundry.__run("cf apps")
 
     @staticmethod
     def routes():
-        subprocess.run(["cf routes"], shell=True)   
+        CloudFoundry.__run("cf routes")
 
     @staticmethod
     def logout(): 
-        subprocess.run(["cf logout"], shell=True)
+        CloudFoundry.__run("cf logout")
 
     @staticmethod
     def stop(cf_app):
-        subprocess.run(["cf stop {}".format(cf_app)], shell=True)
+        CloudFoundry.__run("cf stop {}".format(cf_app))
 
     @staticmethod
     def domains():
-        domains = subprocess.run(["cf domains | tail -n +3 | awk '{print $1}'"], stdout=subprocess.PIPE, shell=True, encoding='utf-8').stdout.split('\n')
+        domains = CloudFoundry.__run("cf domains | tail -n +3 | awk '{print $1}'").stdout.split('\n')
         # there's an empty line at the end of the bash command's stdout, we remove that here
         if domains[len(domains)-1] == '':
             domains.pop()
@@ -38,7 +38,7 @@ class CloudFoundry:
 
     @staticmethod
     def exists(cf_app):
-        app_results = subprocess.run('cf a | grep "{}"'.format(cf_app), stdout=subprocess.PIPE, shell=True, encoding='utf-8').stdout
+        app_results = CloudFoundry.__run('cf a | grep "{}"'.format(cf_app)).stodut
         return bool(app_results)
 
     @staticmethod
@@ -78,6 +78,7 @@ class CloudFoundry:
                 hostname = split_hostname_domain[0]
                 domain = split_hostname_domain[1]
 
+            CloudFoundry.logger.debug("hostname: {} | domain: {} | path: {}".format(hostname, domain, path))
             cf_call(cf_app, hostname, domain, path)
 
     @staticmethod
@@ -85,6 +86,7 @@ class CloudFoundry:
         hostname_param = ""
         if hostname:
             hostname_param = "--hostname " + hostname
+        CloudFoundry.logger.debug("hostname_param: {}".format(hostname_param))
         return hostname_param
 
     @staticmethod
@@ -92,6 +94,7 @@ class CloudFoundry:
         path_param = ""
         if path:
             path_param = "--path " + path
+        CloudFoundry.logger.debug("path_param: {}".format(path_param))
         return path_param
 
     @staticmethod
@@ -99,7 +102,8 @@ class CloudFoundry:
         hostname_param = CloudFoundry.get_hostname_param(hostname)
         path_param = CloudFoundry.get_path_param(path)
         cmd = 'cf map-route {} {} {} {}'.format(cf_app, domain, hostname_param, path_param)
-        subprocess.run(cmd, shell=True)
+        CloudFoundry.logger.debug("Assembled cf map-route command: {}".format(cmd))
+        CloudFoundry.__run(cmd)
 
 
     @staticmethod
@@ -107,7 +111,8 @@ class CloudFoundry:
         hostname_param = CloudFoundry.get_hostname_param(hostname)
         path_param = CloudFoundry.get_path_param(path)
         cmd = 'cf unmap-route {} {} {} {}'.format(cf_app, domain, hostname_param, path_param)
-        subprocess.run(cmd, shell=True)
+        CloudFoundry.logger.debug("Assembled cf unmap-route command: {}".format(cmd))
+        CloudFoundry.__run(cmd)
 
     @staticmethod
     def get_all_services():
