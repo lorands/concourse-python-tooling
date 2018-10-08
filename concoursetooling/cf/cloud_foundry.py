@@ -65,7 +65,10 @@ class CloudFoundry:
             # cut the path from the end of the route
             split_route = route.split('/', 1)
             hostname_domain = split_route[0]
-            path = split_route[1]
+            path = ""
+            if len(split_route) > 1:
+                path = split_route[1]
+
             
             hostname = ""
             domain = ""
