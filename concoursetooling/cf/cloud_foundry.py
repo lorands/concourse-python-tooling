@@ -42,8 +42,13 @@ class CloudFoundry:
 
     @staticmethod
     def exists(cf_app):
-        app_results = CloudFoundry.__run('cf a | grep "{}"'.format(cf_app)).stdout
-        return bool(app_results)
+        exit_code = subprocess.run(['cf a | grep "{}"'.format(cf_app)], shell=True, stdout=subprocess.PIPE, encoding='utf-8').returncode
+        if exit_code == 0:
+            return True
+        elif exit_code == 1:
+            return False
+        else:
+            raise Exception("An error occured while checking if app [{}] exists in CF".format(cf_app))
 
     @staticmethod
     def map_routes(cf_app, cf_approutes):
