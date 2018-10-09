@@ -25,6 +25,10 @@ class CloudFoundry:
         CloudFoundry.__run("cf logout")
 
     @staticmethod
+    def start(cf_app):
+        CloudFoundry.__run("cf start {}".format(cf_app))
+
+    @staticmethod
     def stop(cf_app):
         CloudFoundry.__run("cf stop {}".format(cf_app))
 
