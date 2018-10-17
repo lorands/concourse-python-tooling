@@ -57,7 +57,7 @@ def deploy_docker_as_cf_app(name, docker_image, domain, hostname=None, instances
 
 def __get_cr_token():
   # bx cr token-add
-  shout = __run("bx cr token-add")
+  shout = __run("bx cr token-add --non-expiring")
   ##tokenDict = __process_bx_output_to_dict(shout.stdout)
   lines = shout.stdout.split('\n')
   tokenDict = {}
