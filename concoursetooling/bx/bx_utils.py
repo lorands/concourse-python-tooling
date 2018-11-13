@@ -75,9 +75,10 @@ def bx_create_bucket(desired_name, cos_url, cos_rid, bucket_location):
   '''Creats a bucket and returns it real name
   '''
   iam_token = get_bx_iam_token()
-  if __find_bucket(desired_name, cos_url, cos_rid, iam_token):
+  found_bucket = __find_bucket(desired_name, cos_url, cos_rid, iam_token)
+  if found_bucket != None:
     ## found
-    return desired_name
+    return found_bucket
   else:
     ## not found so try to create it
     logging.info("Bucket {} not found.".format(desired_name))
@@ -144,8 +145,8 @@ def __find_bucket(desired_name, cos_url, cos_rid, iam_token):
       if p.match(name.text):
         ## found
         logging.info("Bucket found with name {}".format(name.text))
-        return True
-    return False
+        return name.text
+    return None
   else:
     raise Exception
 
